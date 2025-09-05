@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.css": "/abbackend/dairy-management-system.git/static/css/main.82fe8170.css",
-    "main.js": "/abbackend/dairy-management-system.git/static/js/main.60131cf4.js",
-    "index.html": "/abbackend/dairy-management-system.git/index.html",
-    "main.82fe8170.css.map": "/abbackend/dairy-management-system.git/static/css/main.82fe8170.css.map",
-    "main.60131cf4.js.map": "/abbackend/dairy-management-system.git/static/js/main.60131cf4.js.map"
+    "main.css": "/dairy-management-system/static/css/main.82fe8170.css",
+    "main.js": "/dairy-management-system/static/js/main.60131cf4.js",
+    "index.html": "/dairy-management-system/index.html",
+    "main.82fe8170.css.map": "/dairy-management-system/static/css/main.82fe8170.css.map",
+    "main.60131cf4.js.map": "/dairy-management-system/static/js/main.60131cf4.js.map"
   },
   "entrypoints": [
     "static/css/main.82fe8170.css",
