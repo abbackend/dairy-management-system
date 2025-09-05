@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/dairy-management-system/static/css/main.82fe8170.css",
-    "main.js": "/dairy-management-system/static/js/main.60131cf4.js",
+    "main.css": "/dairy-management-system/static/css/main.306c0bfd.css",
+    "main.js": "/dairy-management-system/static/js/main.84705321.js",
     "index.html": "/dairy-management-system/index.html",
-    "main.82fe8170.css.map": "/dairy-management-system/static/css/main.82fe8170.css.map",
-    "main.60131cf4.js.map": "/dairy-management-system/static/js/main.60131cf4.js.map"
+    "main.306c0bfd.css.map": "/dairy-management-system/static/css/main.306c0bfd.css.map",
+    "main.84705321.js.map": "/dairy-management-system/static/js/main.84705321.js.map"
   },
   "entrypoints": [
-    "static/css/main.82fe8170.css",
-    "static/js/main.60131cf4.js"
+    "static/css/main.306c0bfd.css",
+    "static/js/main.84705321.js"
   ]
 }
