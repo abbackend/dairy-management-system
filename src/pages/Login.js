@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LoadingSpinner } from '../components/ui/loading';
+
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
@@ -103,7 +103,7 @@ const Login = () => {
                 className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed relative"
               >
                 {loading && (
-                  <LoadingSpinner size="sm" className="mr-2" />
+                  <span className="mr-2">⏳</span>
                 )}
                 {loading ? 'Signing in...' : 'Sign in'}
               </button>

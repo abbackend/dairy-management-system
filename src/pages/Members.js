@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   PlusIcon,
   PencilIcon,
@@ -7,25 +7,39 @@ import {
   PhoneIcon,
   LocationMarkerIcon
 } from '@heroicons/react/outline';
-import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import FormField from '../components/forms/FormField';
 import { STATUS } from '../constants';
 import { getInitials } from '../utils/helpers';
-import { useDebounce } from '../hooks/useDebounce';
-import useMembers from '../hooks/useMembers';
-import { Loading } from '../components/ui/loading';
 
-const Members = React.memo(() => {
-  const {
-    members: allMembers,
-    loading,
-    error,
-    createMember,
-    updateMember,
-    deleteMember,
-    searchMembers
-  } = useMembers();
+const Members = () => {
+  const [members, setMembers] = useState([
+    {
+      id: 1,
+      first_name: 'Rajesh',
+      last_name: 'Kumar',
+      email: 'rajesh@example.com',
+      phone: '+91 9876543210',
+      address: 'Village Rampur, District Meerut',
+      status: STATUS.ACTIVE,
+      owns: 'Cow',
+      joinDate: '2024-01-15',
+      totalCollections: 45,
+      avgQuality: 8.5
+    },
+    {
+      id: 2,
+      first_name: 'Sunita',
+      last_name: 'Devi',
+      email: 'sunita@example.com',
+      phone: '+91 9876543211',
+      address: 'Village Kashipur, District Haridwar',
+      status: STATUS.ACTIVE,
+      owns: 'Buffalo',
+      joinDate: '2024-02-10',
+      totalCollections: 38,
+      avgQuality: 9.2
+    }
+  ]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -41,36 +55,24 @@ const Members = React.memo(() => {
     owns: 'Mixed'
   });
 
-  // Debounce search term for better performance
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
-
-  // Memoized filtered members for better performance
-  const filteredMembers = useMemo(() => {
-    let filtered = allMembers || [];
-
-    // Filter by status
-    if (statusFilter) {
-      filtered = filtered.filter(member => member.status === statusFilter);
-    }
-
-    return filtered;
-  }, [allMembers, statusFilter]);
-
-  // Handle search with debouncing
-  React.useEffect(() => {
-    if (debouncedSearchTerm) {
-      searchMembers(debouncedSearchTerm);
-    }
-  }, [debouncedSearchTerm, searchMembers]);
+  const filteredMembers = members.filter(member => {
+    const matchesSearch = !searchTerm || 
+      `${member.first_name} ${member.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.phone.includes(searchTerm);
+    const matchesStatus = !statusFilter || member.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   const handleAddMember = useCallback(() => {
     setEditingMember(null);
     setFormData({
-      name: '',
+      first_name: '',
+      last_name: '',
+      email: '',
       phone: '',
       address: '',
-      membershipNumber: '',
-      status: STATUS.ACTIVE
+      status: STATUS.ACTIVE,
+      owns: 'Mixed'
     });
     setShowModal(true);
   }, []);
@@ -78,11 +80,13 @@ const Members = React.memo(() => {
   const handleEditMember = useCallback((member) => {
     setEditingMember(member);
     setFormData({
-      name: member.name,
+      first_name: member.first_name,
+      last_name: member.last_name,
+      email: member.email,
       phone: member.phone,
       address: member.address,
-      membershipNumber: member.membershipNumber,
-      status: member.status
+      status: member.status,
+      owns: member.owns
     });
     setShowModal(true);
   }, []);
@@ -102,16 +106,12 @@ const Members = React.memo(() => {
     e.preventDefault();
     
     if (editingMember) {
-      // Update existing member
       setMembers(prev => prev.map(member =>
-        member.id === editingMember.id
-          ? { ...member, ...formData }
-          : member
+        member.id === editingMember.id ? { ...member, ...formData } : member
       ));
     } else {
-      // Add new member
       const newMember = {
-        id: generateId(),
+        id: Date.now(),
         ...formData,
         joinDate: new Date().toISOString().split('T')[0],
         totalCollections: 0,
@@ -136,10 +136,10 @@ const Members = React.memo(() => {
           </p>
         </div>
         <div className="mt-4 flex md:mt-0 md:ml-4">
-          <Button onClick={handleAddMember}>
+          <button onClick={handleAddMember} className="btn-primary">
             <PlusIcon className="h-4 w-4" />
             Add Member
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -181,12 +181,12 @@ const Members = React.memo(() => {
                 <div className="flex items-center">
                   <div className="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center">
                     <span className="text-primary-600 font-medium text-lg">
-                      {getInitials(member.name)}
+                      {getInitials(`${member.first_name} ${member.last_name}`)}
                     </span>
                   </div>
                   <div className="ml-3">
-                    <h3 className="text-lg font-medium text-gray-900">{member.name}</h3>
-                    <p className="text-sm text-gray-500">{member.membershipNumber}</p>
+                    <h3 className="text-lg font-medium text-gray-900">{`${member.first_name} ${member.last_name}`}</h3>
+                    <p className="text-sm text-gray-500">DM{String(member.id).padStart(3, '0')}</p>
                   </div>
                 </div>
                 <Badge variant={member.status === STATUS.ACTIVE ? 'success' : 'secondary'}>
@@ -247,61 +247,67 @@ const Members = React.memo(() => {
                 {editingMember ? 'Edit Member' : 'Add New Member'}
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <FormField
-                  label="Full Name"
-                  name="name"
-                  type="text"
-                  placeholder="Enter full name"
-                  value={formData.name}
-                  onChange={handleFormChange}
-                  required
-                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                  <input
+                    type="text"
+                    name="first_name"
+                    className="input-field"
+                    value={formData.first_name}
+                    onChange={handleFormChange}
+                    required
+                  />
+                </div>
                 
-                <FormField
-                  label="Phone Number"
-                  name="phone"
-                  type="tel"
-                  placeholder="Enter phone number"
-                  value={formData.phone}
-                  onChange={handleFormChange}
-                  required
-                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                  <input
+                    type="text"
+                    name="last_name"
+                    className="input-field"
+                    value={formData.last_name}
+                    onChange={handleFormChange}
+                    required
+                  />
+                </div>
                 
-                <FormField
-                  label="Address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleFormChange}
-                  required
-                >
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    className="input-field"
+                    value={formData.email}
+                    onChange={handleFormChange}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    className="input-field"
+                    value={formData.phone}
+                    onChange={handleFormChange}
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
                   <textarea
                     name="address"
                     rows="3"
                     className="input-field"
-                    placeholder="Enter address"
                     value={formData.address}
                     onChange={handleFormChange}
                     required
                   />
-                </FormField>
+                </div>
                 
-                <FormField
-                  label="Membership Number"
-                  name="membershipNumber"
-                  type="text"
-                  placeholder="Enter membership number"
-                  value={formData.membershipNumber}
-                  onChange={handleFormChange}
-                  required
-                />
-                
-                <FormField
-                  label="Status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleFormChange}
-                  required
-                >
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                   <select
                     name="status"
                     className="input-field"
@@ -311,19 +317,19 @@ const Members = React.memo(() => {
                     <option value={STATUS.ACTIVE}>{STATUS.ACTIVE}</option>
                     <option value={STATUS.INACTIVE}>{STATUS.INACTIVE}</option>
                   </select>
-                </FormField>
+                </div>
                 
                 <div className="flex justify-end space-x-3 pt-4">
-                  <Button
+                  <button
                     type="button"
-                    variant="secondary"
+                    className="btn-secondary"
                     onClick={() => setShowModal(false)}
                   >
                     Cancel
-                  </Button>
-                  <Button type="submit">
+                  </button>
+                  <button type="submit" className="btn-primary">
                     {editingMember ? 'Update' : 'Add'} Member
-                  </Button>
+                  </button>
                 </div>
               </form>
             </div>
@@ -332,8 +338,6 @@ const Members = React.memo(() => {
       )}
     </div>
   );
-});
-
-Members.displayName = 'Members';
+};
 
 export default Members;

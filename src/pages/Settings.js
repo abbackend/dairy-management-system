@@ -1,39 +1,19 @@
-import React, { useState } from 'react';
-import BackupManager from '../database/backup';
+import React from 'react';
 
 const Settings = () => {
-  const [isExporting, setIsExporting] = useState(false);
-
-  const handleExportDatabase = async () => {
-    setIsExporting(true);
-    try {
-      const result = await BackupManager.exportDatabase();
-      if (result.success) {
-        alert('Database exported successfully!');
-      } else {
-        alert('Export failed: ' + result.message);
-      }
-    } catch (error) {
-      alert('Export failed: ' + error.message);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const handleExportJSON = async () => {
-    setIsExporting(true);
-    try {
-      const result = await BackupManager.exportToJSON();
-      if (result.success) {
-        alert('Data exported to JSON successfully!');
-      } else {
-        alert('Export failed: ' + result.message);
-      }
-    } catch (error) {
-      alert('Export failed: ' + error.message);
-    } finally {
-      setIsExporting(false);
-    }
+  const handleExportData = () => {
+    const data = {
+      members: JSON.parse(localStorage.getItem('members') || '[]'),
+      collections: JSON.parse(localStorage.getItem('collections') || '[]')
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'dairy-data.json';
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -47,24 +27,15 @@ const Settings = () => {
           <div>
             <h3 className="text-sm font-medium text-gray-700 mb-2">Export Database</h3>
             <p className="text-sm text-gray-500 mb-3">
-              Download your database as a SQLite file or JSON format for backup purposes.
+              Download your data as JSON format for backup purposes.
             </p>
             
             <div className="flex space-x-3">
               <button
-                onClick={handleExportDatabase}
-                disabled={isExporting}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                onClick={handleExportData}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                {isExporting ? 'Exporting...' : 'Export SQLite File'}
-              </button>
-              
-              <button
-                onClick={handleExportJSON}
-                disabled={isExporting}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {isExporting ? 'Exporting...' : 'Export JSON'}
+                Export Data
               </button>
             </div>
           </div>
